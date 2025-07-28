@@ -63,3 +63,58 @@ declines = declined.groupby(["PROCESSOR", "ERROR_MESSAGE"]).size().unstack(fill_
 st.dataframe(declines)
 
 st.caption("Built for Lemonade Case Study — Apple Pay Deep Dive")
+
+
+# Success Rate by Subscription Interval
+st.subheader("Authorization Rate by Subscription Interval")
+auth_by_interval = (
+    apple_df.groupby("SUBSCRIPTION_INTERVAL")["TRANSACTION_STATUS"]
+    .value_counts(normalize=True).unstack().fillna(0)["success"]
+    .sort_values(ascending=False)
+)
+st.bar_chart(auth_by_interval)
+
+# Retry Success Rate by Processor
+st.subheader("Retry Success Rate by Processor")
+retry_success = (
+    apple_df[apple_df["ATTEMPT_NUMBER"] > 1]
+    .groupby("PROCESSOR")["TRANSACTION_STATUS"]
+    .value_counts(normalize=True).unstack().fillna(0)["success"]
+    .sort_values(ascending=False)
+)
+st.bar_chart(retry_success)
+
+# Heatmap: Decline Reason × Attempt Number
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+st.subheader("Heatmap: Decline Reason by Attempt Number")
+heatmap_data = (
+    apple_df[apple_df["TRANSACTION_STATUS"] == "refused"]
+    .groupby(["ERROR_MESSAGE", "ATTEMPT_NUMBER"]).size()
+    .unstack(fill_value=0)
+)
+
+fig, ax = plt.subplots(figsize=(10, 12))
+sns.heatmap(heatmap_data, cmap="Reds", linewidths=0.5, annot=False, ax=ax)
+st.pyplot(fig)
+
+# Root Cause: Decline Reasons by Charge Category
+st.subheader("Decline Reasons by Charge Category")
+declines_by_category = (
+    apple_df[apple_df["TRANSACTION_STATUS"] == "refused"]
+    .groupby(["CHARGE_CATEGORY", "ERROR_MESSAGE"]).size()
+    .unstack(fill_value=0)
+)
+st.dataframe(declines_by_category)
+
+
+# 📈 Apple Pay Daily Success Volume
+st.subheader("Apple Pay Volume & Success Over Time")
+apple_trend = pd.read_csv("apple_pay_daily_trend.csv", index_col=0)
+st.line_chart(apple_trend)
+
+# 📊 Apple Pay vs Card-on-File Success Rate by Card Brand
+st.subheader("Apple Pay vs Card-on-File Success Rate by Brand")
+brand_comp = pd.read_csv("apple_vs_card_success_by_brand.csv")
+st.dataframe(brand_comp.style.format({"ApplePay_SuccessRate": "{:.2%}", "Card_SuccessRate": "{:.2%}"}))

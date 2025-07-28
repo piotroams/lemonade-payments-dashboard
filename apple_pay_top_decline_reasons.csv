@@ -1,0 +1,11 @@
+,ERROR_MESSAGE
+Your card was declined.,75
+Your card has insufficient funds.,69
+Declined - Do Not Honour,67
+Insufficient Funds,65
+Your card does not support this type of purchase.,40
+Not enough balance | 51 : Insufficient funds/over credit limit,36
+Refused | 05 : Do not honor,30
+Not enough balance | 51 : Insufficient funds,22
+"Declined Non Generic | 78 : Blocked, first used",20
+Restricted Card | 62 : Restricted card,14

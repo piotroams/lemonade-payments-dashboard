@@ -117,3 +117,26 @@ st.dataframe(brand_proc.style.format({
 }))
 
 st.caption("Built for Lemonade Case Study — Apple Pay Deep Dive")
+
+
+# 🔍 Heatmaps: Decline Reasons by Attempt Type
+
+st.subheader("🔹 Decline Reasons on First Attempt (Apple Pay Only)")
+heatmap_first = (
+    apple_df[(apple_df["TRANSACTION_STATUS"] == "refused") & (apple_df["ATTEMPT_NUMBER"] == 1)]
+    .groupby(["ERROR_MESSAGE", "ATTEMPT_NUMBER"]).size()
+    .unstack(fill_value=0)
+)
+fig1, ax1 = plt.subplots(figsize=(10, 10))
+sns.heatmap(heatmap_first, cmap="Reds", linewidths=0.5, ax=ax1)
+st.pyplot(fig1)
+
+st.subheader("🔸 Decline Reasons on Retry Attempts (Apple Pay Only)")
+heatmap_retry = (
+    apple_df[(apple_df["TRANSACTION_STATUS"] == "refused") & (apple_df["ATTEMPT_NUMBER"] > 1)]
+    .groupby(["ERROR_MESSAGE", "ATTEMPT_NUMBER"]).size()
+    .unstack(fill_value=0)
+)
+fig2, ax2 = plt.subplots(figsize=(10, 10))
+sns.heatmap(heatmap_retry, cmap="Oranges", linewidths=0.5, ax=ax2)
+st.pyplot(fig2)
